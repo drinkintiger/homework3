@@ -1,0 +1,21 @@
+int a;
+int b;
+int first(int x, int y) {
+   int a;
+   a = 4;
+   b = 11;
+   x = 3;
+   second(x);
+   return b;
+}
+void second(int z) {
+   z = 3;
+   b = 0;
+}
+int main() {
+   int i;
+   int j;
+   i = 4;
+   j = 5;
+   j = first(i, j);
+}

@@ -1,0 +1,16 @@
+int a;
+int b;
+int helper(int x, int y) {
+   int a;
+   a = 4;
+   b = 11;
+   x = 3;
+   return x;
+}
+void main() {
+   int i;
+   int j;
+   i = 4;
+   j = 5;
+   j = helper(i, j);
+}

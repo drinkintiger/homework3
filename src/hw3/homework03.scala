@@ -101,9 +101,11 @@ object homework03 {
 	    }
 	    
 	    var ls = List[(Any, Any)]()
-	    for(e<-inGamma) findPair(e._1.toString(), inAssign)
-	      ls = (adr, value)::ls
-	    
+	    for(e<-inGamma) {
+	      
+	      ls = findPair(e._1.toString(), inAssign)::ls
+	    }
+	      
 	    if(!inAssign.isEmpty){
 	      ls
 	    }
@@ -112,7 +114,7 @@ object homework03 {
 	  
 	  var globalVars = findGlobalDecs(inputList)
 	  var str = ""
-	    globalVars.foreach(e => str+=("undef "))//
+	  globalVars.foreach(e => str+=("undef "))//
 	  var globalMu = List.unzip(globalVars)._2.zip(str.split(" "))
 	  
 	 def sigma_global (in: List[String]): Unit = {
@@ -128,7 +130,7 @@ object homework03 {
 	  
 	  def sigma_main_in(in: List[String]): Unit = {
 	    println("sigma_main_in")
-	    var tempMain = globalVars++ findMainDecs(in)
+	    var tempMain = globalVars ++ findMainDecs(in)
 	    var tempAlpha = a+1
 	    var str = ""
 	      tempMain.foreach(f => str+="undef ")
@@ -144,19 +146,10 @@ object homework03 {
 	    	var mainBody = extractMethods(in, "main")
 	    	var assignList = findAssignment(mainBody)
 	    	var newList = muBuilder(tempMain, assignList)
-	    	//newList.foreach(println)
+	    	println(tempMain+ "		" + "			"+ assignList + "			"+newList)	//needed for testing remove before submitting	
 	    	sigma_other_in(in, findMethodCalls(mainBody))
 	    }
 	    sigma_main_out(tempMain, tempAlpha) 
-	  }
-	  
-	  def sigma_main_out(in: List[(String,Any)], alpha: Int): Unit = {
-	    println("sigma_main_out")
-	    print("  gamma: {")
-	    in.foreach( f=>print(" " +f+" ") )
-	    println("}")
-	    println("  mu: {}")
-	    println("a = " + alpha)
 	  }
 	  
 	  def sigma_other_in(in: List[String], callList: List[String]): Unit = {
@@ -189,6 +182,14 @@ object homework03 {
 	    println("a = " + alpha)
 	  }
 	  
+	  def sigma_main_out(in: List[(String,Any)], alpha: Int): Unit = {
+	    println("sigma_main_out")
+	    print("  gamma: {")
+	    in.foreach( f=>print(" " +f+" ") )
+	    println("}")
+	    println("  mu: {}")
+	    println("a = " + alpha)
+	  }
 	  sigma_global(inputList)
 	  sigma_main_in(inputList)
 	}

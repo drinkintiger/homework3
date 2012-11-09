@@ -20,6 +20,7 @@ object homework03 {
 	  val VoidCall = """([a-z]+)\(([[a-z]|[a-z]\,].*)\);""".r
 	  val NonVoidCall = """([a-z]) = ([a-z]+)\(([int [a-z]|[a-z]\,].*)\);""".r
 	  
+	  /* Helper methods, to aid in parsing the given program */
 	  def findGlobalDecs (in: List[String]):List[(String, Any)] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (global_declarations findAllIn head.trim).nonEmpty ) { val global_declarations(varName) = head.trim; a+=1; (varName,a)::findGlobalDecs(tail)} else Nil
@@ -82,6 +83,9 @@ object homework03 {
 	    case fun => if ( (otherFun findAllIn fun).nonEmpty ) { val otherFun(funType, funName, _) = fun; if (funType.equals("void")) true else false } else false
 	  }
 	  
+	  /* This will extract the body of the method
+	   * @parama funName the name of the method to extract 
+	   */
 	  def extractMethods(in: List[String], funName: String): List[String] = {
 	    var temp = List[String]()
 	    if (funName.equals("main")) temp = findMainMeth(in)
@@ -94,16 +98,15 @@ object homework03 {
 	  def muBuilder(inGamma: List[(Any, Any)], inAssign: List[(Any, Any)]): List[(Any, Any)] = {
 	    var adr =""
 	    var value=""
-	    def findPair(s: String, inAssign: List[(Any, Any)]): (Any, Any) ={
-	      inAssign.foreach(f => if(s.equals(f._1.toString())) return(s, f._2)
-	        else {adr = s; value = "undef"}	)
+	    def findPair(s: (Any, Any), inAssign: List[(Any, Any)]): (Any, Any) ={
+	      inAssign.foreach(f => if(s._1.equals(f._1.toString())) return(s._2, f._2)
+	        else {adr = s._2.toString; value = "undef"}	)
 	      return (adr, value)
 	    }
 	    
 	    var ls = List[(Any, Any)]()
 	    for(e<-inGamma) {
-	      
-	      ls = findPair(e._1.toString(), inAssign)::ls
+	      ls = findPair(e, inAssign)::ls
 	    }
 	      
 	    if(!inAssign.isEmpty){

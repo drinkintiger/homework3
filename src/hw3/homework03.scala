@@ -2,7 +2,6 @@ package hw3
 
 import scala.collection.immutable.Nil
 
-
 object homework03 {
   
 	import scala.io.Source
@@ -11,6 +10,7 @@ object homework03 {
 	  var inputList = Source.fromFile(args(0)).getLines.toList 
 	  var outputList = List()
 	  var a = -1
+	  /* Various regexes used for pattern matching to parse the program */
 	  val global_declarations = """int ([a-z]);""".r
 	  val params = """([int [a-z]|[a-z]\,].*)""".r
 	  val vars = """int ([a-z])""".r
@@ -105,7 +105,7 @@ object homework03 {
 	      ls = (adr, value)::ls
 	    
 	    if(!inAssign.isEmpty){
-	      ls//++muBuilder(inGamma.tail, inAssign.tail)
+	      ls
 	    }
 	    else Nil	    
 	  }

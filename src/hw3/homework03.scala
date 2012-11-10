@@ -165,12 +165,13 @@ object homework03 {
 	        if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
 	        var methBody = extractMethods(in, inFun)
 	        println("sigma_" + inFun + "_in")
-	    	var tempOther = globalVars ++ extractVars(methDecs) 
+	        var tempVars = extractVars(methDecs) 
+	    	var tempOther = globalVars ++ tempVars
 	    	var localDecs = findLocalDecs(methBody)
 	    	tempOther = tempOther ++ localDecs    	    	
 	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); tempOther = tempOther ++ temp }
 	    	var assignList = findAssignment(methBody)
-	    	var newMu = muBuilder(tempOther, assignList)
+	    	var newMu = muBuilder(tempVars++localDecs, assignList)
 	    	newMu = newMu ++ muList
 	    	var tempAlpha = a+1
 	        print("  gamma: {")

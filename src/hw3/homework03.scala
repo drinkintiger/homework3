@@ -147,6 +147,8 @@ object homework03 {
 	    println("  a = " + tempAlpha)
 	    if (!findMethodCalls(in).isEmpty) {	    	    	
 	    	var mainBody = extractMethods(in, "main")
+	    	var passedParams = findMethodParms(in, findMethodCalls(in).head)
+	    	
 	    	var assignList = findAssignment(mainBody)
 	    	var newList = muBuilder(tempMain, assignList)
 	    	//println(tempMain+ "		" + "			"+ assignList + "			"+newList)	//needed for testing remove before submitting	
@@ -159,16 +161,17 @@ object homework03 {
 	    callList.foreach(f => fun(f))
 	    def fun (inFun: String): Unit = {
 	    	var methDecs = procMethodDecs(findMethodParms(in,inFun))
+	    	//println(methDecs)
 	        if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
 	        var methBody = extractMethods(in, inFun)
 	        println("sigma_" + inFun + "_in")
 	    	var tempOther = globalVars ++ extractVars(methDecs) 
 	    	var localDecs = findLocalDecs(methBody)
+	    	tempOther = tempOther ++ localDecs    	    	
+	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); tempOther = tempOther ++ temp }
 	    	var assignList = findAssignment(methBody)
 	    	var newMu = muBuilder(tempOther, assignList)
 	    	newMu = newMu ++ muList
-	    	tempOther = tempOther ++ localDecs
-	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); tempOther = tempOther ++ temp }	        
 	    	var tempAlpha = a+1
 	        print("  gamma: {")
 	    	tempOther.foreach( f=>print(" " +f+" ") )

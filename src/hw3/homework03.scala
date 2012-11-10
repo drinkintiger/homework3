@@ -146,12 +146,9 @@ object homework03 {
 	    if (!findMethodCalls(in).isEmpty) {	    	    	
 	    	var mainBody = extractMethods(in, "main")
 	    	var assignList = findAssignment(mainBody)
-	    	var newList = muBuilder(tempMain, assignList)	 
-	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)//here we need to pass the params with the values assigned them onto newlist
-	    	var passedParams = findMethodParms(in, findMethodCalls(in).head)
-	    	assignList = findAssignment(mainBody)
-	    	var muList = muBuilder(tempMain, assignList)
-
+	    	var newList = muBuilder(tempMain, assignList)	    	
+	    	
+	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)
 	    }
 	    sigma_main_out(tempMain, tempAlpha) 
 	  }
@@ -171,6 +168,8 @@ object homework03 {
 	    	var assignList = findAssignment(methBody)
 	    	var newMu = muBuilder(localDecs, List((a,"undef")))
 	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); var mu = List((a,"undef")); tempOther = tempOther ++ temp; newMu = newMu ++ mu }
+	    	
+	    	
 	    	newMu = newMu ++assignParams++ muList
 	    	var tempAlpha = a+1
 	        print("  gamma: {")
@@ -181,7 +180,6 @@ object homework03 {
 	    	println("}")
 	    	println("a = " + tempAlpha)
 	    	var otherBody = extractMethods(in, inFun)
-
 	    	newMu = (7,3)::muList ++ muBuilder(tempVars++localDecs, assignList)//(7,3) should be the return value
 	    	if (!findMethodCalls(otherBody).isEmpty) {sigma_other_in(in, findMethodCalls(otherBody), newMu.sortBy(_._1.toString()), List()) }
 	    	other_out(tempOther, inFun, tempAlpha, newMu.sortBy(_._1.toString()))

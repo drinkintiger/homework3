@@ -21,26 +21,33 @@ object homework03 {
 	  val NonVoidCall = """([a-z]) = ([a-z]+)\(([int [a-z]|[a-z]\,].*)\);""".r
 	  
 	  /* Helper methods, to aid in parsing the given program */
+	  
+	  /* findGlobalDecs returns a list of all global declarations and their respective address */
 	  def findGlobalDecs (in: List[String]):List[(String, Any)] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (global_declarations findAllIn head.trim).nonEmpty ) { val global_declarations(varName) = head.trim; a+=1; (varName,a)::findGlobalDecs(tail)} else Nil
 	  }
+	  /* findLocalDecs similar to findGlobalDecs only the processing is done on the single method level */
 	  def findLocalDecs (in: List[String]):List[(String, Any)] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (global_declarations findAllIn head.trim).nonEmpty ) { val global_declarations(varName) = head.trim; a+=1; (varName,a)::findLocalDecs(tail)} else findLocalDecs(tail)
 	  }
+	  /* findMainMeth finds main method */
 	  def findMainMeth (in: List[String]): List[String] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (MainFun findAllIn head.trim).nonEmpty ) { tail } else findMainMeth(tail)
 	  }
+	  /* findOtherMeths finds other method declaration */
 	  def findOtherMeths (in: List[String]): List[String] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (otherFun findAllIn head.trim).nonEmpty ) { head::findOtherMeths(tail) } else findOtherMeths(tail)
 	  }
+	  /* findMainDecs returns variable declarations in the main method */
 	  def findMainDecs (in: List[String]):List[(String, Any)] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (MainFun findAllIn head).nonEmpty ) { findGlobalDecs(tail)} else {findMainDecs(tail)}
 	  }
+	  /* findMethodParms returns all input parameters for the given method */
 	  def findMethodParms (in: List[String], funName: String):List[String] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (otherFun findAllIn head).nonEmpty ) { 
@@ -50,6 +57,7 @@ object homework03 {
 	    					 }
 	    					 else findMethodParms(tail, funName)
 	  }
+	  /* findOtherMeth is used to find a beginning of the given method, used for extracting the method body from the program */
 	  def findOtherMeth (in: List[String], funName: String):List[String] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (otherFun findAllIn head.trim).nonEmpty ) { 
@@ -59,6 +67,7 @@ object homework03 {
 	    					 }
 	    					 else findOtherMeth(tail, funName)
 	  }
+	  /* Processing all input parameters and returns their names */
 	  def procMethodDecs (in: List[String]):List[String] = in match {
 	    case Nil => List()
 	    case (head::tail) => if ( (params findAllIn head).nonEmpty ) { val params(vars) = head; vars::procMethodDecs(tail)} else procMethodDecs(tail)
@@ -77,6 +86,10 @@ object homework03 {
 	    else if ( (VoidCall findAllIn head).nonEmpty ) { val VoidCall(funName, params) = head.trim; (funName)::findMethodCalls(tail)}
 	    						else findMethodCalls(tail)
 	  }
+	  def nonVoidCallParms (in: List[String]): List[String] = in match {
+	    case Nil => List()
+	    case (head::tail) => if ( (NonVoidCall findAllIn head).nonEmpty ) { val NonVoidCall(varName, funName, inputParms) = head.trim; (inputParms)::nonVoidCallParms(tail) } else nonVoidCallParms(tail)
+	  }
 	  /* If function return type is void returns true, otherwise false */
 	  def isMethVoid (methName: String): Boolean = methName match {
 	    case "" => false
@@ -84,7 +97,7 @@ object homework03 {
 	  }
 	  
 	  /* This will extract the body of the method
-	   * @parama funName the name of the method to extract 
+	   * @param funName the name of the method to extract 
 	   */
 	  def extractMethods(in: List[String], funName: String): List[String] = {
 	    var temp = List[String]()
@@ -147,11 +160,18 @@ object homework03 {
 	    println("  a = " + tempAlpha)
 	    if (!findMethodCalls(in).isEmpty) {	    	    	
 	    	var mainBody = extractMethods(in, "main")
+<<<<<<< HEAD
 	    	//println(mainBody)
 	    	var assignList = findAssignment(mainBody)
 	    	var newList = muBuilder(tempMain, assignList)	    	
 	    	//println(tempMain+ "		" + "			"+ assignList + "			"+newList)	//needed for testing remove before submitting	
 	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)//here we need to pass the params with the values assigned them onto newlist
+=======
+	    	var passedParams = findMethodParms(in, findMethodCalls(in).head)
+	    	var assignList = findAssignment(mainBody)
+	    	var muList = muBuilder(tempMain, assignList)
+	    	sigma_other_in(in, findMethodCalls(mainBody), muList)
+>>>>>>> added comments
 	    }
 	    sigma_main_out(tempMain, tempAlpha) 
 	  }
@@ -160,10 +180,10 @@ object homework03 {
 	    callList.foreach(f => fun(f))
 	    def fun (inFun: String): Unit = {
 	    	var methDecs = procMethodDecs(findMethodParms(in,inFun))
-	    	//println(methDecs)
-	        if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
+	    	if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
 	        var methBody = extractMethods(in, inFun)
 	        println("sigma_" + inFun + "_in")
+<<<<<<< HEAD
 	        var tempVars = extractVars(methDecs)
 	        //println(tempVars)
 	        var assignParams = List.unzip(tempVars)._2.zip(paramValues)
@@ -176,6 +196,16 @@ object homework03 {
 	    	
 	    	
 	    	newMu = newMu ++assignParams++ muList
+=======
+	    	var tempOther = globalVars ++ extractVars(methDecs) 
+	    	var localDecs = findLocalDecs(methBody)
+	    	tempOther = tempOther ++ localDecs    	    	
+	    	if (!localDecs.isEmpty) tempOther = tempOther.diff(globalVars)
+	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); tempOther = tempOther ++ temp }
+	    	var assignList = findAssignment(methBody)
+	    	var newMu = muBuilder(tempOther, assignList)
+	    	newMu = newMu ++ muList
+>>>>>>> added comments
 	    	var tempAlpha = a+1
 	        print("  gamma: {")
 	    	tempOther.foreach( f=>print(" " +f+" ") )

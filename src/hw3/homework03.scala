@@ -160,18 +160,12 @@ object homework03 {
 	    println("  a = " + tempAlpha)
 	    if (!findMethodCalls(in).isEmpty) {	    	    	
 	    	var mainBody = extractMethods(in, "main")
-<<<<<<< HEAD
-	    	//println(mainBody)
 	    	var assignList = findAssignment(mainBody)
 	    	var newList = muBuilder(tempMain, assignList)	    	
-	    	//println(tempMain+ "		" + "			"+ assignList + "			"+newList)	//needed for testing remove before submitting	
 	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)//here we need to pass the params with the values assigned them onto newlist
-=======
 	    	var passedParams = findMethodParms(in, findMethodCalls(in).head)
-	    	var assignList = findAssignment(mainBody)
+	    	assignList = findAssignment(mainBody)
 	    	var muList = muBuilder(tempMain, assignList)
-	    	sigma_other_in(in, findMethodCalls(mainBody), muList)
->>>>>>> added comments
 	    }
 	    sigma_main_out(tempMain, tempAlpha) 
 	  }
@@ -183,9 +177,7 @@ object homework03 {
 	    	if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
 	        var methBody = extractMethods(in, inFun)
 	        println("sigma_" + inFun + "_in")
-<<<<<<< HEAD
 	        var tempVars = extractVars(methDecs)
-	        //println(tempVars)
 	        var assignParams = List.unzip(tempVars)._2.zip(paramValues)
 	    	var tempOther = globalVars ++ tempVars
 	    	var localDecs = findLocalDecs(methBody)
@@ -193,19 +185,15 @@ object homework03 {
 	    	var assignList = findAssignment(methBody)
 	    	var newMu = muBuilder(localDecs, List((a,"undef")))
 	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); var mu = List((a,"undef")); tempOther = tempOther ++ temp; newMu = newMu ++ mu }
-	    	
-	    	
 	    	newMu = newMu ++assignParams++ muList
-=======
-	    	var tempOther = globalVars ++ extractVars(methDecs) 
-	    	var localDecs = findLocalDecs(methBody)
+	    	tempOther = globalVars ++ extractVars(methDecs) 
+	    	localDecs = findLocalDecs(methBody)
 	    	tempOther = tempOther ++ localDecs    	    	
 	    	if (!localDecs.isEmpty) tempOther = tempOther.diff(globalVars)
 	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); tempOther = tempOther ++ temp }
-	    	var assignList = findAssignment(methBody)
-	    	var newMu = muBuilder(tempOther, assignList)
+	    	assignList = findAssignment(methBody)
+	    	newMu = muBuilder(tempOther, assignList)
 	    	newMu = newMu ++ muList
->>>>>>> added comments
 	    	var tempAlpha = a+1
 	        print("  gamma: {")
 	    	tempOther.foreach( f=>print(" " +f+" ") )
@@ -215,10 +203,7 @@ object homework03 {
 	    	println("}")
 	    	println("a = " + tempAlpha)
 	    	var otherBody = extractMethods(in, inFun)
-	    	//println(methBody)
 	    	newMu = muList ++ muBuilder(tempVars++localDecs, assignList)
-	    	//newMu.sortBy(_._1.toString()).foreach(e=>print(e))
-	    	//println
 	    	if (!findMethodCalls(otherBody).isEmpty) {sigma_other_in(in, findMethodCalls(otherBody), newMu, List()) }
 	    	other_out(tempOther, inFun, tempAlpha)
 	    }

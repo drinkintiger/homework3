@@ -168,10 +168,12 @@ object homework03 {
 	        var tempVars = extractVars(methDecs) 
 	    	var tempOther = globalVars ++ tempVars
 	    	var localDecs = findLocalDecs(methBody)
-	    	tempOther = tempOther ++ localDecs    	    	
-	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); tempOther = tempOther ++ temp }
+	    	tempOther = tempOther ++ localDecs   
 	    	var assignList = findAssignment(methBody)
 	    	var newMu = muBuilder(tempVars++localDecs, assignList)
+	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); var mu = List((a,"undef")); tempOther = tempOther ++ temp; newMu = newMu ++ mu }
+	    	
+	    	
 	    	newMu = newMu ++ muList
 	    	var tempAlpha = a+1
 	        print("  gamma: {")

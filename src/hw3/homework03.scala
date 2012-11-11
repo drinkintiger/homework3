@@ -146,7 +146,7 @@ object homework03 {
 	    if (!findMethodCalls(in).isEmpty) {	    	    	
 	    	var mainBody = extractMethods(in, "main")
 	    	var assignList = findAssignment(mainBody)
-	    	var newList = muBuilder(tempMain, assignList)	    	
+	    	var newList = muBuilder(tempMain, assignList)
 	    	
 	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)
 	    }
@@ -163,11 +163,26 @@ object homework03 {
 	        var tempVars = extractVars(methDecs)
 	        var assignParams = List.unzip(tempVars)._2.zip(paramValues)
 	    	var tempOther = globalVars ++ tempVars
-	    	var localDecs = findLocalDecs(methBody)
-	    	tempOther = tempOther ++ localDecs   
+	    	var localDecs = findLocalDecs(methBody)	    	
+	    	tempOther = tempOther ++ localDecs
 	    	var assignList = findAssignment(methBody)
+	    	
+	    	//this if statement check to see what values have been assigned to the passed parameters
+	    	//if it has been assigned a value and doesn't already exist in the assingList then add 
+	    	//it to the assignList.
+	    	for(e<-tempVars){
+	    	  if(List.unzip(assignParams)._1.contains(e._2)&& !List.unzip(assignList)._1.contains(e._1))
+	    	  	{
+	    	    assignList = (e._1.toString(),e._2.toString())::assignList
+	    	    }
+	    	}
+	    	
 	    	var newMu = muBuilder(localDecs, List((a,"undef")))
-	    	if (!isMethVoid(methBody.head)) { a+=1; var temp = List((inFun, a)); var mu = List((a,"undef")); tempOther = tempOther ++ temp; newMu = newMu ++ mu }
+	    	if (!isMethVoid(methBody.head))
+	    	{ 
+	    	  a+=1; var temp = List((inFun, a)); var mu = List((a,"undef")); 
+	    	  tempOther = tempOther ++ temp; newMu = newMu ++ mu
+	    	}
 	    	
 	    	
 	    	newMu = newMu ++assignParams++ muList
@@ -180,8 +195,11 @@ object homework03 {
 	    	println("}")
 	    	println("a = " + tempAlpha)
 	    	var otherBody = extractMethods(in, inFun)
-	    	newMu = (7,3)::muList ++ muBuilder(tempVars++localDecs, assignList)//(7,3) should be the return value
-	    	if (!findMethodCalls(otherBody).isEmpty) {sigma_other_in(in, findMethodCalls(otherBody), newMu.sortBy(_._1.toString()), List()) }
+	    	println(List.unzip(globalVars)._1--List.unzip(localDecs)._1)
+	    	newMu = muList ++ muBuilder(tempVars++localDecs, assignList)//(7,3) should be the return value
+	    	if (!findMethodCalls(otherBody).isEmpty) 
+	    		{sigma_other_in(in, findMethodCalls(otherBody), newMu.sortBy(_._1.toString()), List()) }
+	    	
 	    	other_out(tempOther, inFun, tempAlpha, newMu.sortBy(_._1.toString()))
 	    }
 	  }

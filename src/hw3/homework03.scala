@@ -3,6 +3,10 @@ package hw3
 import scala.collection.immutable.Nil
 //test
 object homework03 {
+  
+	import scala.io.Source
+	
+	def main(args: Array[String]): Unit = {
 	  var inputList = Source.fromFile(args(0)).getLines.toList 
 	  var outputList = List()
 	  var a = -1

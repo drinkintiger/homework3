@@ -1,3 +1,5 @@
+package hw3
+
 import scala.collection.immutable.Nil
 //test
 object homework03 {
@@ -17,6 +19,7 @@ object homework03 {
 	  val assignment = """([a-z]) = ([0-9]+);""".r
 	  val VoidCall = """([a-z]+)\(([[a-z]|[a-z]\,].*)\);""".r
 	  val NonVoidCall = """([a-z]) = ([a-z]+)\(([int [a-z]|[a-z]\,].*)\);""".r
+	  val retCall = """return ([a-z]);""".r
 	  
 	  /* Helper methods, to aid in parsing the given program */
 	  def findGlobalDecs (in: List[String]):List[(String, Any)] = in match {
@@ -74,6 +77,10 @@ object homework03 {
 	    case (head::tail) => if ( (NonVoidCall findAllIn head).nonEmpty ) { val NonVoidCall(varName, funName, _) = head.trim; (funName)::findMethodCalls(tail) }
 	    else if ( (VoidCall findAllIn head).nonEmpty ) { val VoidCall(funName, params) = head.trim; (funName)::findMethodCalls(tail)}
 	    						else findMethodCalls(tail)
+	  }
+	  def getMethRetVal (in: List[String]): String = in match {
+	    case Nil => ""
+	    case (head::tail) => if ( (retCall findAllIn head).nonEmpty ) { val retCall(varName) = head.trim; varName} else getMethRetVal(tail)
 	  }
 	  /* If function return type is void returns true, otherwise false */
 	  def isMethVoid (methName: String): Boolean = methName match {
@@ -146,8 +153,7 @@ object homework03 {
 	    if (!findMethodCalls(in).isEmpty) {	    	    	
 	    	var mainBody = extractMethods(in, "main")
 	    	var assignList = findAssignment(mainBody)
-	    	var newList = muBuilder(tempMain, assignList)
-	    	
+	    	var newList = muBuilder(tempMain, assignList)	    	
 	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)
 	    }
 	    sigma_main_out(tempMain, tempAlpha) 
@@ -156,6 +162,7 @@ object homework03 {
 	  def sigma_other_in(in: List[String], callList: List[String], muList: List[(Any, Any)], paramValues: List[String]): Unit = {
 	    callList.foreach(f => fun(f))
 	    def fun (inFun: String): Unit = {
+	        var methRetVal= ""
 	    	var methDecs = procMethodDecs(findMethodParms(in,inFun))
 	        if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
 	        var methBody = extractMethods(in, inFun)
@@ -178,13 +185,15 @@ object homework03 {
 	    	}
 	    	
 	    	var newMu = muBuilder(localDecs, List((a,"undef")))
-	    	if (!isMethVoid(methBody.head))
-	    	{ 
-	    	  a+=1; var temp = List((inFun, a)); var mu = List((a,"undef")); 
-	    	  tempOther = tempOther ++ temp; newMu = newMu ++ mu
+	    	if (!isMethVoid(methBody.head)) {
+	    	  methRetVal = getMethRetVal(methBody)
+	    	  a+=1
+	    	  var temp = List((inFun, a))
+	    	  var mu = List((a,"undef")) 
+	    	  tempOther = tempOther ++ temp //if method has return value,add it to gamma
+	    	  newMu = newMu ++ mu
 	    	}
-	    	
-	    	
+
 	    	newMu = newMu ++assignParams++ muList
 	    	var tempAlpha = a+1
 	        print("  gamma: {")
@@ -194,12 +203,9 @@ object homework03 {
 	    	newMu.sortBy(_._1.toString()).foreach( f=>print(" " +f+" ") )
 	    	println("}")
 	    	println("a = " + tempAlpha)
-	    	var otherBody = extractMethods(in, inFun)
-	    	println(List.unzip(globalVars)._1--List.unzip(localDecs)._1)
 	    	newMu = muList ++ muBuilder(tempVars++localDecs, assignList)//(7,3) should be the return value
-	    	if (!findMethodCalls(otherBody).isEmpty) 
-	    		{sigma_other_in(in, findMethodCalls(otherBody), newMu.sortBy(_._1.toString()), List()) }
-	    	
+	    	var methMu = tempOther.diff(tempOther.diff(localDecs))
+	    	if (!findMethodCalls(methBody).isEmpty) {sigma_other_in(in, findMethodCalls(methBody), newMu.sortBy(_._1.toString()), List()) }
 	    	other_out(tempOther, inFun, tempAlpha, newMu.sortBy(_._1.toString()))
 	    }
 	  }

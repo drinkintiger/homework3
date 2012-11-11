@@ -210,8 +210,14 @@ object homework03 {
 	    	newMu.sortBy(_._1.toString()).foreach( f=>print(" " +f+" ") )
 	    	println("}")
 	    	println("a = " + tempAlpha)
-	    	var globalAssign =listComp(globalVars,localDecs)	    	
-	    	newMu = muList ++ muBuilder(tempVars++localDecs++globalAssign, assignList)//(7,3) should be the return value
+	    	var globalAssign =listComp(globalVars,localDecs)
+	    	var newMuList =  List[(Any, Any)]()
+	    	for(e<-muList){
+	    	  if(!List.unzip(globalAssign)._2.toString().contains(e._1.toString())) newMuList= e::newMuList
+	    	}
+	    	println(newMuList)
+	    	println(muList.sortBy(_._1.toString()))
+	    	newMu = newMuList ++ muBuilder(tempVars++localDecs++globalAssign, assignList)//(7,3) should be the return value
 	    	var methMu = tempOther.diff(tempOther.diff(localDecs))
 	    	if (!findMethodCalls(methBody).isEmpty) {sigma_other_in(in, findMethodCalls(methBody), newMu.sortBy(_._1.toString()), List()) }
 	    	for (e <- assignList) {

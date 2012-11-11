@@ -215,18 +215,17 @@ object homework03 {
 	    	for(e<-muList){
 	    	  if(!List.unzip(globalAssign)._2.toString().contains(e._1.toString())) newMuList= e::newMuList
 	    	}
-	    	println(newMuList)
-	    	println(muList.sortBy(_._1.toString()))
-	    	newMu = newMuList ++ muBuilder(tempVars++localDecs++globalAssign, assignList)//(7,3) should be the return value
-	    	var methMu = tempOther.diff(tempOther.diff(localDecs))
-	    	if (!findMethodCalls(methBody).isEmpty) {sigma_other_in(in, findMethodCalls(methBody), newMu.sortBy(_._1.toString()), List()) }
+	    	newMu = newMuList ++ muBuilder(tempVars++localDecs++globalAssign, assignList)
+	    	if (!findMethodCalls(methBody).isEmpty) {
+	    	  newMu = newMuList ++ muBuilder(tempVars++localDecs++globalAssign, assignList)
+	    	  sigma_other_in(in, findMethodCalls(methBody), newMu.sortBy(_._1.toString()), List())
+	    	}
 	    	for (e <- assignList) {
 	    	  if (e._1.equals(methRetVal)) {
 	    	    var temp = tempOther.dropWhile(f => !f._1.equals(inFun)).head
 	    	    newMu = (temp._2, e._2)::newMu
 	    	  } 
 	    	}
-
 	    	other_out(tempOther, inFun, tempAlpha, newMu.sortBy(_._1.toString()))
 	    }
 	  }

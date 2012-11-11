@@ -193,19 +193,24 @@ object homework03 {
 	    	  tempOther = tempOther ++ temp //if method has return value,add it to gamma
 	    	  newMu = newMu ++ mu
 	    	}
-
-	    	newMu = newMu ++assignParams++ muList
+	    	newMu = newMu ++ assignParams ++ muList
 	    	var tempAlpha = a+1
 	        print("  gamma: {")
-	    	tempOther.foreach( f=>print(" " +f+" ") )
+	    	tempOther.foreach( f=>print(" " + f + " ") )
 	    	println("}")
 	    	print("  mu: {")
-	    	newMu.sortBy(_._1.toString()).foreach( f=>print(" " +f+" ") )
+	    	newMu.sortBy(_._1.toString()).foreach( f=>print(" " + f + " ") )
 	    	println("}")
 	    	println("a = " + tempAlpha)
 	    	newMu = muList ++ muBuilder(tempVars++localDecs, assignList)//(7,3) should be the return value
 	    	var methMu = tempOther.diff(tempOther.diff(localDecs))
 	    	if (!findMethodCalls(methBody).isEmpty) {sigma_other_in(in, findMethodCalls(methBody), newMu.sortBy(_._1.toString()), List()) }
+	    	for (e <- assignList) {
+	    	  if (e._1.equals(methRetVal)) {
+	    	    var temp = tempOther.dropWhile(f => !f._1.equals(inFun)).head
+	    	    newMu = (temp._2, e._2)::newMu
+	    	  } 
+	    	}
 	    	other_out(tempOther, inFun, tempAlpha, newMu.sortBy(_._1.toString()))
 	    }
 	  }

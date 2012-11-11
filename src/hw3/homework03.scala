@@ -3,10 +3,6 @@ package hw3
 import scala.collection.immutable.Nil
 //test
 object homework03 {
-  
-	import scala.io.Source
-	
-	def main(args: Array[String]): Unit = {
 	  var inputList = Source.fromFile(args(0)).getLines.toList 
 	  var outputList = List()
 	  var a = -1
@@ -119,3 +115,126 @@ object homework03 {
 	    }
 	    else Nil	    
 	  } 
+	  
+	  def listComp(globList: List[(String, Any)], locList: List[(String, Any)]): List[(String, Any)] = globList match{
+	    case Nil => List()
+	    case (head::tail) => if(!List.unzip(locList)._1.contains(head._1)) 
+	    						(head)::listComp(tail, locList) 
+	    					 else listComp(tail, locList) 	    
+	  }
+	  
+	  var globalVars = findGlobalDecs(inputList)
+	  var str = ""
+	  globalVars.foreach(e => str+=("undef "))
+	  var globalMu = List.unzip(globalVars)._2.zip(str.split(" "))
+	  
+	 def sigma_global (in: List[String]): Unit = {
+	    println("sigma_global")
+	    print("  gamma: {")
+	    globalVars.foreach( f=>print(" " +f+" ") )
+	    println("}")
+	    print("  mu: {")
+	    globalMu.foreach(f => print(" "+f+" "))
+	    println("}")
+	    println("  a = "+ (a+1))
+	  }
+	  
+	  def sigma_main_in(in: List[String]): Unit = {
+	    println("sigma_main_in")
+	    var tempMain = globalVars ++ findMainDecs(in)
+	    var tempAlpha = a+1
+	    var str = ""
+	      tempMain.foreach(f => str+="undef ")
+	    var tempMu = List.unzip(tempMain)._2.zip(str.split(" "))
+	    print("  gamma: {")
+	    tempMain.foreach( f=>print(" " +f+" ") )
+	    println("}")
+	    print("  mu: {")
+	    tempMu.foreach(f => print(" "+f+" "))
+	    println("}")
+	    println("  a = " + tempAlpha)
+	    if (!findMethodCalls(in).isEmpty) {	    	    	
+	    	var mainBody = extractMethods(in, "main")
+	    	var assignList = findAssignment(mainBody)
+	    	var newList = muBuilder(tempMain, assignList)	    	
+	    	sigma_other_in(in, findMethodCalls(mainBody), newList, List.unzip(assignList)._2)
+	    }
+	    sigma_main_out(tempMain, tempAlpha) 
+	  }
+	  
+	  def sigma_other_in(in: List[String], callList: List[String], muList: List[(Any, Any)], paramValues: List[String]): Unit = {
+	    callList.foreach(f => fun(f))
+	    def fun (inFun: String): Unit = {
+	        var methRetVal= ""
+	    	var methDecs = procMethodDecs(findMethodParms(in,inFun))
+	        if (!methDecs.isEmpty) methDecs = methDecs.head.split(",").toList
+	        var methBody = extractMethods(in, inFun)
+	        println("sigma_" + inFun + "_in")
+	        var tempVars = extractVars(methDecs)
+	        var assignParams = List.unzip(tempVars)._2.zip(paramValues)
+	    	var tempOther = globalVars ++ tempVars
+	    	var localDecs = findLocalDecs(methBody)	    	
+	    	tempOther = tempOther ++ localDecs
+	    	var assignList = findAssignment(methBody)
+	    	
+	    	//this if statement check to see what values have been assigned to the passed parameters
+	    	//if it has been assigned a value and doesn't already exist in the assingList then add 
+	    	//it to the assignList.
+	    	for(e<-tempVars){
+	    	  if(List.unzip(assignParams)._1.contains(e._2)&& !List.unzip(assignList)._1.contains(e._1))
+	    	  	{
+	    	    assignList = (e._1.toString(),e._2.toString())::assignList
+	    	    }
+	    	}
+	    	
+	    	var newMu = muBuilder(localDecs, List((a,"undef")))
+	    	if (!isMethVoid(methBody.head)) {
+	    	  methRetVal = getMethRetVal(methBody)
+	    	  a+=1
+	    	  var temp = List((inFun, a))
+	    	  var mu = List((a,"undef")) 
+	    	  tempOther = tempOther ++ temp //if method has return value,add it to gamma
+	    	  newMu = newMu ++ mu
+	    	}
+
+	    	newMu = newMu ++assignParams++ muList
+	    	var tempAlpha = a+1
+	        print("  gamma: {")
+	    	tempOther.foreach( f=>print(" " +f+" ") )
+	    	println("}")
+	    	print("  mu: {")
+	    	newMu.sortBy(_._1.toString()).foreach( f=>print(" " +f+" ") )
+	    	println("}")
+	    	println("a = " + tempAlpha)
+	    	var globalAssign =listComp(globalVars,localDecs)	    	
+	    	newMu = muList ++ muBuilder(tempVars++localDecs++globalAssign, assignList)//(7,3) should be the return value
+	    	var methMu = tempOther.diff(tempOther.diff(localDecs))
+	    	if (!findMethodCalls(methBody).isEmpty) {sigma_other_in(in, findMethodCalls(methBody), newMu.sortBy(_._1.toString()), List()) }
+	    	other_out(tempOther, inFun, tempAlpha, newMu.sortBy(_._1.toString()))
+	    }
+	  }
+	  
+	  def other_out(in: List[(String,Any)], funName: String, alpha: Int, muList: List[(Any, Any)]): Unit = {
+	    println("sigma_" + funName + "_out")
+	    print("  gamma: {")
+	    in.foreach( f=>print(" " +f+" ") )
+	    println("}")
+	    print("  mu: {")
+	    muList.foreach( f=>print(" " +f+" ") )
+	    println("}")
+	    println("a = " + alpha)
+	  }
+	  
+	  def sigma_main_out(in: List[(String,Any)], alpha: Int): Unit = {
+	    println("sigma_main_out")
+	    print("  gamma: {")
+	    in.foreach( f=>print(" " +f+" ") )
+	    println("}")
+	    println("  mu: {}")
+	    println("a = " + alpha)
+	  }
+	  sigma_global(inputList)
+	  sigma_main_in(inputList)
+	}
+
+}
